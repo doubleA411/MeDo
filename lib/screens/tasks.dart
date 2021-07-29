@@ -1,21 +1,28 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:todo_app/provider/google_sign_in.dart';
 
-class TaskPage extends StatelessWidget {
-  CollectionReference taskList = FirebaseFirestore.instance.collection('tasks');
+class TaskPage extends StatefulWidget {
+  final GoogleSignInProvider provider;
+
+  const TaskPage({Key? key, required this.provider}) : super(key: key);
+  @override
+  State<TaskPage> createState() => _TaskPageState();
+}
+
+class _TaskPageState extends State<TaskPage> {
   final _controller = TextEditingController();
 
-  void _addTask() {
-    final taskName = _controller.text;
-
-    FirebaseFirestore.instance.collection("tasks").add({"title": taskName});
-
-    _controller.clear();
-  }
-
+  void _addTask() {}
+  final user = FirebaseAuth.instance.currentUser;
   @override
   Widget build(BuildContext context) {
+    DocumentReference<Map<String, dynamic>> taskList =
+        FirebaseFirestore.instance.collection('Users').doc(user!.uid);
+
     return Scaffold(
       floatingActionButton: Container(
         decoration: BoxDecoration(
@@ -37,62 +44,7 @@ class TaskPage extends StatelessWidget {
               backgroundColor: Colors.white,
               context: context,
               builder: (context) {
-                return Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        "Add Task",
-                        style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.w600, fontSize: 20.0),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10.0, vertical: 10.0),
-                      child: Container(
-                        height: 60.0,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10.0),
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.white,
-                              offset: Offset(-5, -5),
-                              blurRadius: 8,
-                              spreadRadius: 1,
-                            ),
-                            BoxShadow(
-                                color: Color(0xff9E9E9E),
-                                offset: Offset(5, 5),
-                                blurRadius: 8.0,
-                                spreadRadius: 1)
-                          ],
-                        ),
-                        child: Center(
-                          child: TextField(
-                            style: GoogleFonts.dmSans(),
-                            controller: _controller,
-                            textAlign: TextAlign.center,
-                            decoration: InputDecoration.collapsed(
-                                hintText: 'Enter task title'),
-                          ),
-                        ),
-                      ),
-                    ),
-                    FlatButton(
-                      onPressed: () {
-                        _addTask();
-                        Navigator.of(context).pop();
-                      },
-                      child: Text(
-                        "Add",
-                        style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-                      ),
-                      color: Colors.greenAccent,
-                    ),
-                  ],
-                );
+                return AddTask(controller: _controller, user: user);
               },
             );
           },
@@ -101,7 +53,7 @@ class TaskPage extends StatelessWidget {
       body: Container(
         height: MediaQuery.of(context).size.height,
         child: StreamBuilder<QuerySnapshot>(
-          stream: taskList.snapshots(),
+          stream: taskList.collection("tasks").snapshots(),
           builder: (BuildContext context,
               AsyncSnapshot<QuerySnapshot> querySnapshot) {
             if (querySnapshot.hasError) {
@@ -110,6 +62,7 @@ class TaskPage extends StatelessWidget {
                 ConnectionState.waiting) {
               return Text("Please wait...");
             }
+            widget.provider.tasks = querySnapshot.data!.docs.length;
             return new ListView(
               scrollDirection: Axis.vertical,
               children:
@@ -132,7 +85,7 @@ class TaskPage extends StatelessWidget {
                           ),
                         ),
                       ),
-                      onDismissed: (direction) => FirebaseFirestore.instance
+                      onDismissed: (direction) => taskList
                           .collection("tasks")
                           .doc(snapshot.id)
                           .delete(),
@@ -142,28 +95,25 @@ class TaskPage extends StatelessWidget {
                           height: 65,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10.0),
-                            color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.white,
-                                offset: Offset(-5, -5),
-                                blurRadius: 8,
-                                spreadRadius: 1,
-                              ),
-                              BoxShadow(
-                                  color: Color(0xff9E9E9E),
-                                  offset: Offset(5, 5),
-                                  blurRadius: 8.0,
-                                  spreadRadius: 1)
-                            ],
+                            color: Colors.pinkAccent.withOpacity(0.1),
+                            // boxShadow: [
+                            //   BoxShadow(
+                            //     color: Colors.white,
+                            //     offset: Offset(-5, -5),
+                            //     blurRadius: 8,
+                            //     spreadRadius: 1,
+                            //   ),
+                            //   BoxShadow(
+                            //       color: Color(0xff9E9E9E),
+                            //       offset: Offset(5, 5),
+                            //       blurRadius: 8.0,
+                            //       spreadRadius: 1)
+                            // ],
                           ),
                           child: ListTile(
-                            leading: Padding(
-                              padding: const EdgeInsets.only(top: 10.0),
-                              child: Image.asset(
-                                "assets/target.png",
-                                height: 30.0,
-                              ),
+                            leading: Icon(
+                              Icons.task_alt,
+                              color: Colors.black,
                             ),
                             title: Text(
                               snapshot["title"],
@@ -179,6 +129,87 @@ class TaskPage extends StatelessWidget {
           },
         ),
       ),
+    );
+  }
+}
+
+class AddTask extends StatelessWidget {
+  const AddTask({
+    Key? key,
+    required TextEditingController controller,
+    required this.user,
+  })  : _controller = controller,
+        super(key: key);
+
+  final TextEditingController _controller;
+  final User? user;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            "Add Task",
+            style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w600, fontSize: 20.0),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 10.0),
+          child: Container(
+            height: 50.0,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10.0),
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.white,
+                  offset: Offset(-5, -5),
+                  blurRadius: 8,
+                  spreadRadius: 1,
+                ),
+                BoxShadow(
+                    color: Color(0xff9E9E9E),
+                    offset: Offset(5, 5),
+                    blurRadius: 8.0,
+                    spreadRadius: 1)
+              ],
+            ),
+            child: Center(
+              child: TextField(
+                style: GoogleFonts.dmSans(),
+                controller: _controller,
+                textAlign: TextAlign.center,
+                decoration: InputDecoration.collapsed(
+                  hintText: 'Enter task title',
+                  
+                ),
+              ),
+            ),
+          ),
+        ),
+        FlatButton(
+          onPressed: () {
+            final taskName = _controller.text;
+
+            FirebaseFirestore.instance
+                .collection("Users")
+                .doc(user!.uid)
+                .collection("tasks")
+                .add({"title": taskName}).whenComplete(() => {
+                      _controller.clear(),
+                      Navigator.of(context).pop(),
+                    });
+          },
+          child: Text(
+            "Add",
+            style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+          ),
+          color: Colors.greenAccent,
+        ),
+      ],
     );
   }
 }

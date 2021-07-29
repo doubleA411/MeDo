@@ -1,14 +1,27 @@
+
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:todo_app/constants.dart';
+import 'package:todo_app/provider/google_sign_in.dart';
 import 'package:todo_app/screens/addNotes.dart';
 
-class Notes extends StatelessWidget {
-  CollectionReference notesList =
-      FirebaseFirestore.instance.collection('notes');
+// final user = FirebaseAuth.instance.currentUser;
+
+class Notes extends StatefulWidget {
+  @override
+  State<Notes> createState() => _NotesState();
+}
+
+class _NotesState extends State<Notes> {
+  var user = FirebaseAuth.instance.currentUser;
   @override
   Widget build(BuildContext context) {
+    DocumentReference<Map<String, dynamic>> notesList =
+        FirebaseFirestore.instance.collection('Users').doc(user!.uid);
     return Scaffold(
       floatingActionButton: Container(
         decoration: BoxDecoration(
@@ -30,15 +43,16 @@ class Notes extends StatelessWidget {
                   context, MaterialPageRoute(builder: (context) => AddNotes()));
             }),
       ),
-      backgroundColor: Colors.white,
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 5.0),
         child: Container(
           height: MediaQuery.of(context).size.height,
           child: StreamBuilder(
-              stream: notesList.snapshots(),
+              stream: notesList.collection("notes").snapshots(),
               builder: (context, AsyncSnapshot<QuerySnapshot> snapshots) {
                 if (snapshots.hasData) {
+                  Provider.of<GoogleSignInProvider>(context).notes =
+                      snapshots.data!.docs.length;
                   return GridView.builder(
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2, crossAxisSpacing: 5.0),
@@ -90,9 +104,12 @@ class NotesWidget extends StatelessWidget {
             actions: [
               GestureDetector(
                 onTap: () => FirebaseFirestore.instance
+                    .collection("Users")
+                    .doc(user!.uid)
                     .collection("notes")
                     .doc(snapshot.id)
-                    .delete().whenComplete(() => Navigator.pop(context)),
+                    .delete()
+                    .whenComplete(() => Navigator.pop(context)),
                 child: Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: Text(
@@ -104,7 +121,7 @@ class NotesWidget extends StatelessWidget {
               ),
               GestureDetector(
                 onTap: () => Navigator.pop(context),
-                              child: Padding(
+                child: Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: Text(
                     "Cancel",
@@ -120,9 +137,9 @@ class NotesWidget extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
         child: Container(
           decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(15.0),
-              boxShadow: kBoxShaow),
+            color: Colors.pinkAccent.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(15.0),
+          ),
           child: Padding(
             padding:
                 const EdgeInsets.symmetric(horizontal: 10.0, vertical: 15.0),

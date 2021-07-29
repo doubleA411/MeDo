@@ -1,14 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:todo_app/constants.dart';
+import 'package:todo_app/provider/google_sign_in.dart';
 
 class AddNotes extends StatelessWidget {
   var titleController = TextEditingController();
   var descController = TextEditingController();
-  CollectionReference ref = FirebaseFirestore.instance.collection("notes");
+
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+    CollectionReference<Map<String, dynamic>> ref = FirebaseFirestore.instance
+        .collection("Users")
+        .doc(user!.uid)
+        .collection("notes");
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -86,7 +94,6 @@ class AddNotes extends StatelessWidget {
                       controller: descController,
                       expands: true,
                       maxLines: null,
-                      
                       style: GoogleFonts.dmSans(),
                       decoration:
                           InputDecoration.collapsed(hintText: 'Description'),
