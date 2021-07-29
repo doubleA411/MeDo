@@ -70,6 +70,57 @@ class Tabs extends StatelessWidget {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
+          actions: [
+            SizedBox(
+              width: 20.0,
+            ),
+            IconButton(
+              onPressed: () {
+                showModalBottomSheet(
+                    context: context,
+                    builder: (context) {
+                      return Container(
+                        color: Color(0xff757575),
+                        child: Container(
+                          // padding: EdgeInsets.all(40.0).copyWith(top: 0),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(20.0),
+                                topRight: Radius.circular(20.0)),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 15.0, vertical: 40.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Add\nComplete\nRepeat",
+                                  style: GoogleFonts.dmSans(
+                                    fontSize: 25.0,
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 20.0,
+                                ),
+                                Text(
+                                  "• Press + to add task/note.\n• Swipe on the item to delete the task\n• Hold on the item to delete the note",
+                                  style: GoogleFonts.dmSans(fontSize: 15.0),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    });
+              },
+              icon: Icon(
+                Icons.info_outlined,
+                color: Colors.black,
+              ),
+            )
+          ],
           leading: Padding(
             padding: const EdgeInsets.all(8.0),
             child: InkWell(
@@ -80,9 +131,12 @@ class Tabs extends StatelessWidget {
               },
               child: Container(
                 decoration: BoxDecoration(
+                    border: Border.all(color: Colors.pinkAccent),
                     shape: BoxShape.circle,
                     image: DecorationImage(
-                      image: NetworkImage(user!.photoURL.toString()),
+                      image: NetworkImage(
+                        user!.photoURL.toString(),
+                      ),
                     )),
               ),
             ),
@@ -96,18 +150,19 @@ class Tabs extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.pinkAccent,
               borderRadius: BorderRadius.circular(10.0),
-              border: Border.all(color: Colors.black, width: 2.0),
+              // border: Border.all(color: Colors.black, width: 2.0),
             ),
             child: Text(
-              "MeDo!",
+              "Do it!",
               style: GoogleFonts.poppins(
-                  color: Colors.black, fontWeight: FontWeight.bold),
+                  color: Colors.white, fontWeight: FontWeight.w500),
             ),
           ),
           bottom: TabBar(
             indicatorColor: kPrimarrColor,
             labelPadding: const EdgeInsets.all(10),
             indicatorWeight: 2.0,
+            indicatorSize: TabBarIndicatorSize.label,
             tabs: [
               Text(
                 "Tasks",

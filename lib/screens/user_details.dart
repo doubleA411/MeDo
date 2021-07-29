@@ -15,7 +15,6 @@ class UserDetails extends StatefulWidget {
 
 class _UserDetailsState extends State<UserDetails> {
   final user = FirebaseAuth.instance.currentUser;
- 
 
   @override
   Widget build(BuildContext context) {
@@ -164,6 +163,21 @@ class _UserDetailsState extends State<UserDetails> {
                 ),
               ),
             ),
+          ),
+          Spacer(),
+          Text(
+            "from",
+            style: GoogleFonts.dmSans(),
+          ),
+          Text(
+            "MINIMAL MIND",
+            style: GoogleFonts.dmSans(
+              fontSize: 18.0,
+              color: Colors.pinkAccent.withOpacity(0.4)
+            ),
+          ),
+          SizedBox(
+            height: 20.0,
           ),
         ],
       ),

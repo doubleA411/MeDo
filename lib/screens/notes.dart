@@ -1,5 +1,3 @@
-
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -23,26 +21,17 @@ class _NotesState extends State<Notes> {
     DocumentReference<Map<String, dynamic>> notesList =
         FirebaseFirestore.instance.collection('Users').doc(user!.uid);
     return Scaffold(
-      floatingActionButton: Container(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(
-            color: Colors.black,
-            width: 2.0,
+      floatingActionButton: FloatingActionButton(
+          backgroundColor: Colors.pinkAccent,
+          child: Icon(
+            Icons.add,
+            color: Colors.white,
+            size: 25.0,
           ),
-        ),
-        child: FloatingActionButton(
-            backgroundColor: Colors.pinkAccent,
-            child: Icon(
-              Icons.add,
-              color: Colors.black,
-              size: 35.0,
-            ),
-            onPressed: () {
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => AddNotes()));
-            }),
-      ),
+          onPressed: () {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => AddNotes()));
+          }),
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 5.0),
         child: Container(
@@ -50,7 +39,8 @@ class _NotesState extends State<Notes> {
           child: StreamBuilder(
               stream: notesList.collection("notes").snapshots(),
               builder: (context, AsyncSnapshot<QuerySnapshot> snapshots) {
-                if (snapshots.hasData) {
+                if (snapshots.data != null &&
+                    snapshots.data!.docs.length != 0) {
                   Provider.of<GoogleSignInProvider>(context).notes =
                       snapshots.data!.docs.length;
                   return GridView.builder(
@@ -62,7 +52,22 @@ class _NotesState extends State<Notes> {
                             snapshot: snapshots.data!.docs[index]);
                       });
                 }
-                return CircularProgressIndicator();
+                return Center(
+                    child: Container(
+                  decoration: BoxDecoration(
+                      color: Colors.pinkAccent.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(10.0)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Text(
+                      "No notes available\n   Press + to add",
+                      style: GoogleFonts.dmSans(
+                        fontSize: 15.0,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ));
               }),
         ),
       ),
@@ -103,13 +108,15 @@ class NotesWidget extends StatelessWidget {
             ),
             actions: [
               GestureDetector(
-                onTap: () => FirebaseFirestore.instance
-                    .collection("Users")
-                    .doc(user!.uid)
-                    .collection("notes")
-                    .doc(snapshot.id)
-                    .delete()
-                    .whenComplete(() => Navigator.pop(context)),
+                onTap: () {
+                  FirebaseFirestore.instance
+                      .collection("Users")
+                      .doc(user!.uid)
+                      .collection("notes")
+                      .doc(snapshot.id)
+                      .delete();
+                  Navigator.pop(context);
+                },
                 child: Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: Text(
@@ -146,12 +153,27 @@ class NotesWidget extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  snapshot.get("title"),
-                  style: GoogleFonts.dmSans(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 18.0,
-                  ),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.notes,
+                      size: 20.0,
+                    ),
+                    SizedBox(
+                      width: 5.0,
+                    ),
+                    Expanded(
+                      child: Text(
+                        snapshot.get("title"),
+                        overflow: TextOverflow.clip,
+                        softWrap: true,
+                        style: GoogleFonts.dmSans(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 15.0,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 SizedBox(
                   height: 10.0,
