@@ -4,13 +4,28 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
-import 'package:todo_app/constants.dart';
-import 'package:todo_app/provider/google_sign_in.dart';
+import 'package:todo_app/functions.dart';
 
-class AddNotes extends StatelessWidget {
+class EditNotes extends StatefulWidget {
+  final DocumentSnapshot snapshot;
+
+  const EditNotes({Key? key, required this.snapshot}) : super(key: key);
+  @override
+  State<EditNotes> createState() => _EditNotesState();
+}
+
+class _EditNotesState extends State<EditNotes> {
   var titleController = TextEditingController();
+  bool readOnly = true;
   var descController = TextEditingController();
+
+  @override
+  void initState() {
+    titleController = TextEditingController(text: widget.snapshot.get("title"));
+    descController =
+        TextEditingController(text: widget.snapshot.get("description"));
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,36 +49,52 @@ class AddNotes extends StatelessWidget {
           ),
           centerTitle: true,
           title: Text(
-            "Add Notes",
+            "Edit Note",
             style: GoogleFonts.dmSans(
                 color: Color(0xff0A1931), fontWeight: FontWeight.w500),
           ),
           actions: [
             IconButton(
               icon: Icon(
-                Icons.done,
+                readOnly == false ? Icons.done : Icons.edit_outlined,
                 color: Color(0xff0A1931),
               ),
               onPressed: () {
-                if (titleController.text.length > 0 &&
-                    descController.text.length > 0) {
-                  ref.add({
-                    "title": titleController.text,
-                    "description": descController.text,
-                    "date": DateTime.now().toString(),
-                  }).whenComplete(() => Navigator.pop(context));
-                } else {
-                  Fluttertoast.showToast(msg: "Every Field is Required");
+                if (readOnly == false) {
+                  if (titleController.text.length > 0 &&
+                      descController.text.length > 0) {
+                    widget.snapshot.reference.update({
+                      "title": titleController.text,
+                      "description": descController.text,
+                      "date": DateTime.now().toString()
+                    }).whenComplete(() => Navigator.pop(context));
+                  } else {
+                    Fluttertoast.showToast(msg: "Every Field is Required");
+                  }
+                } else if (readOnly == true) {
+                  setState(() {
+                    readOnly = false;
+                  });
                 }
               },
             ),
-            SizedBox(
-              width: 10.0,
-            ),
+            IconButton(
+                onPressed: () {
+                  ref.doc(widget.snapshot.id).delete().whenComplete(() {
+                    Navigator.pop(context);
+                    Fluttertoast.showToast(
+                        msg: widget.snapshot.get("title") + " is deleted");
+                  });
+                },
+                icon: Icon(
+                  Icons.delete_outline_rounded,
+                  color: Color(0xffFF2626),
+                )),
           ],
         ),
         body: SingleChildScrollView(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(
                 height: 20.0,
@@ -76,6 +107,7 @@ class AddNotes extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10.0),
                     child: TextField(
+                      readOnly: readOnly,
                       controller: titleController,
                       style: GoogleFonts.dmSans(
                           fontSize: 30.0, fontWeight: FontWeight.bold),
@@ -84,6 +116,13 @@ class AddNotes extends StatelessWidget {
                           hintText: 'Enter note title'),
                     ),
                   ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                child: Text(
+                  Functions.formatMyDate(widget.snapshot.get("date")),
+                  style: GoogleFonts.dmSans(fontSize: 18.0),
                 ),
               ),
               Padding(
@@ -99,6 +138,7 @@ class AddNotes extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10.0),
                     child: TextField(
+                      readOnly: readOnly,
                       controller: descController,
                       expands: true,
                       maxLines: null,

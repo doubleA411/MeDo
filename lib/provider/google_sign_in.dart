@@ -93,4 +93,6 @@ class GoogleSignInProvider extends ChangeNotifier {
   }
 
   var userID = "";
+
+  notifyListeners();
 }

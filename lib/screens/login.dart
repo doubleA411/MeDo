@@ -1,12 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:todo_app/constants.dart';
-import 'package:todo_app/main.dart';
 import 'package:todo_app/provider/google_sign_in.dart';
 
 class LoginUI extends StatelessWidget {
@@ -17,6 +12,7 @@ class LoginUI extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xff185ADB),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
@@ -24,9 +20,10 @@ class LoginUI extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Welcome back,\nAdd.\nComplete.\nRepeat.",
+                "Welcome,\nAdd.\nComplete.\nRepeat.",
                 style: GoogleFonts.dmSans(
                   fontSize: 30.0,
+                  color: Color(0xffEFEFEF),
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -43,9 +40,8 @@ class LoginUI extends StatelessWidget {
                     height: 60.0,
                     width: 250,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Color(0xffEFEFEF),
                       borderRadius: BorderRadius.circular(15.0),
-                      boxShadow: kBoxShaow,
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -60,8 +56,8 @@ class LoginUI extends StatelessWidget {
                         Text(
                           "Continue with Google",
                           style: GoogleFonts.dmSans(
-                            color: Colors.blue,
-                            fontWeight: FontWeight.w600,
+                            color: Color(0xff0A1931),
+                            fontWeight: FontWeight.bold,
                           ),
                         )
                       ],

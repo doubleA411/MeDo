@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:todo_app/constants.dart';
 import 'package:todo_app/functions.dart';
+import 'package:todo_app/homepage.dart';
 import 'package:todo_app/provider/google_sign_in.dart';
 import 'package:todo_app/screens/login.dart';
 import 'package:todo_app/screens/notes.dart';
@@ -45,7 +46,7 @@ class App extends StatelessWidget {
             } else if (!snapshot.hasData) {
               return LoginUI();
             } else if (snapshot.hasData) {
-              return Tabs();
+              return HomePage();
             } else if (snapshot.hasError) {
               return Center(
                 child: Text(snapshot.data.toString()),
@@ -185,7 +186,7 @@ class Tabs extends StatelessWidget {
           children: [
             TaskPage(
               provider:
-                  Provider.of<GoogleSignInProvider>(context, listen: false),
+                  Provider.of<GoogleSignInProvider>(context, listen: true),
             ),
             Notes(),
           ],
@@ -211,7 +212,7 @@ class SigningIn extends StatelessWidget {
               width: 60.0,
               child: CircularProgressIndicator(
                 strokeWidth: 8.0,
-                color: Colors.pinkAccent,
+                color: Color(0xff185ADB),
               ),
             ),
             SizedBox(

@@ -1,5 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
+import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:todo_app/functions.dart';
@@ -18,8 +21,7 @@ class _UserDetailsState extends State<UserDetails> {
 
   @override
   Widget build(BuildContext context) {
-    GoogleSignInProvider provider =
-        Provider.of<GoogleSignInProvider>(context, listen: false);
+    GoogleSignInProvider provider = Provider.of<GoogleSignInProvider>(context);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -27,7 +29,7 @@ class _UserDetailsState extends State<UserDetails> {
           onPressed: () => Navigator.pop(context),
           icon: Icon(
             Icons.arrow_back_ios,
-            color: Colors.pinkAccent,
+            color: Color(0xff185ADB),
           ),
         ),
         backgroundColor: Colors.white,
@@ -41,145 +43,89 @@ class _UserDetailsState extends State<UserDetails> {
           ),
         ),
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
-            child: Container(
-              alignment: Alignment.center,
-              height: 90,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10.0),
-                color: Colors.pinkAccent.withOpacity(0.2),
-              ),
-              child: ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: Colors.transparent,
-                  child: Container(
-                    decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: DecorationImage(
-                            image: NetworkImage(user!.photoURL.toString()))),
-                  ),
-                ),
-                title: Text(
-                  user!.displayName.toString(),
-                  style: GoogleFonts.dmSans(
-                    color: Colors.black,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 18.0,
-                  ),
-                ),
-                subtitle: Text(
-                  user!.email.toString(),
-                  style:
-                      GoogleFonts.dmSans(color: Colors.black, fontSize: 12.0),
-                ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 15.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CircleAvatar(
+              radius: 50.0,
+              backgroundColor: Color(0xfff5f7fb),
+              child: Image.network(user!.photoURL.toString()),
+            ),
+            SizedBox(
+              height: 20.0,
+            ),
+            Text(
+              "Username",
+              style: GoogleFonts.dmSans(
+                  fontWeight: FontWeight.bold, fontSize: 18.0),
+            ),
+            Text(
+              user!.displayName.toString(),
+              style: GoogleFonts.dmSans(
+                fontSize: 25.0,
+                fontWeight: FontWeight.bold,
+                color: Color(0xff0A1931),
               ),
             ),
-          ),
-          Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
-            child: Container(
-              alignment: Alignment.center,
-              height: 60,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10.0),
-                color: Colors.pinkAccent.withOpacity(0.2),
-              ),
-              child: ListTile(
-                leading: Icon(
-                  Icons.task_alt_rounded,
-                  color: Colors.black,
-                ),
-                title: Text(
-                  "Tasks",
-                  style: GoogleFonts.dmSans(
-                      color: Colors.black,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 18.0),
-                ),
-                trailing: Text(
-                  provider.tasks.toString(),
-                  style: GoogleFonts.dmSans(
-                      color: Colors.black,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 18.0),
-                ),
+            SizedBox(
+              height: 20.0,
+            ),
+            Text(
+              "Email Address",
+              style: GoogleFonts.dmSans(
+                  fontWeight: FontWeight.bold, fontSize: 18.0),
+            ),
+            Text(
+              user!.email.toString(),
+              style: GoogleFonts.dmSans(
+                fontSize: 25.0,
+                fontWeight: FontWeight.w600,
+                color: Color(0xff0A1931),
               ),
             ),
-          ),
-          Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
-            child: Container(
-              alignment: Alignment.center,
-              height: 60,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10.0),
-                color: Colors.pinkAccent.withOpacity(0.2),
-              ),
-              child: ListTile(
-                leading: Icon(
-                  Icons.notes,
-                  color: Colors.black,
-                ),
-                title: Text(
-                  "Notes",
-                  style: GoogleFonts.dmSans(
-                      color: Colors.black,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 18.0),
-                ),
-                trailing: Text(
-                  provider.notes.toString(),
-                  style: GoogleFonts.dmSans(
-                      color: Colors.black,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 18.0),
-                ),
-              ),
+            SizedBox(
+              height: 50.0,
             ),
-          ),
-          InkWell(
-            onTap: () async {
-              await provider.logout(context);
-            },
-            child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+            InkWell(
+              onTap: () async {
+                await provider.logout(context);
+              },
               child: Container(
-                alignment: Alignment.center,
-                height: 50,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10.0),
-                  color: Colors.red.withOpacity(0.1),
-                ),
+                alignment: Alignment.centerRight,
                 child: Text(
                   "Logout",
-                  style: GoogleFonts.dmSans(color: Colors.red, fontSize: 18.0),
+                  style: GoogleFonts.dmSans(
+                    color: Colors.red,
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
-          ),
-          Spacer(),
-          Text(
-            "from",
-            style: GoogleFonts.dmSans(),
-          ),
-          Text(
-            "MINIMAL MIND",
-            style: GoogleFonts.dmSans(
-              fontSize: 18.0,
-              color: Colors.pinkAccent.withOpacity(0.4)
+            Spacer(),
+            Center(
+              child: Column(
+                children: [
+                  Text(
+                    "from",
+                    style: GoogleFonts.dmSans(),
+                  ),
+                  Text(
+                    "MINIMAL MIND",
+                    style: GoogleFonts.dmSans(
+                        fontSize: 18.0,
+                        color: Color(0xff185ADB).withOpacity(0.8)),
+                  ),
+                ],
+              ),
             ),
-          ),
-          SizedBox(
-            height: 20.0,
-          ),
-        ],
+            SizedBox(
+              height: 20.0,
+            ),
+          ],
+        ),
       ),
     );
   }
